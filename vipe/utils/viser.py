@@ -396,7 +396,7 @@ def get_host_ip() -> str:
     return internal_ip
 
 
-def run_viser(base_path: Path, port: int = 20540):
+def run_viser(base_path: Path, port: int = 20540, host: str | None = None):
     # Get list of artifacts.
     logger.info(f"Loading artifacts from {base_path}")
     artifacts: list[ArtifactPath] = list(ArtifactPath.glob_artifacts(base_path, use_video=True))
@@ -407,7 +407,7 @@ def run_viser(base_path: Path, port: int = 20540):
     global _global_context
     _global_context = GlobalContext(artifacts=sorted(artifacts, key=lambda x: x.artifact_name))
 
-    server = viser.ViserServer(host=get_host_ip(), port=port, verbose=False)
+    server = viser.ViserServer(host=host or get_host_ip(), port=port, verbose=False)
     client_closures: dict[int, ClientClosures] = {}
 
     @server.on_client_connect
@@ -433,6 +433,12 @@ def main():
     parser = argparse.ArgumentParser(description="3D Visualizer")
     parser.add_argument("base_path", type=Path, help="Base path for the visualizer")
     parser.add_argument(
+        "--host",
+        type=str,
+        default="127.0.0.1",
+        help="Host interface for the viser server. Use 127.0.0.1 for SSH/VS Code port forwarding.",
+    )
+    parser.add_argument(
         "-p",
         "--port",
         type=int,
@@ -441,7 +447,7 @@ def main():
     )
     args = parser.parse_args()
 
-    run_viser(args.base_path, args.port)
+    run_viser(args.base_path, args.port, args.host)
 
 
 if __name__ == "__main__":

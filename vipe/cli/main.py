@@ -94,9 +94,14 @@ def infer(video: Path, image_dir: Path, output: Path, pipeline: str, visualize: 
 
 @click.command()
 @click.argument("data_path", type=click.Path(exists=True, path_type=Path), default=Path.cwd() / "vipe_results")
+@click.option(
+    "--host",
+    default="127.0.0.1",
+    help="Host interface for the visualization server (default: 127.0.0.1 for SSH/VS Code port forwarding)",
+)
 @click.option("--port", "-p", default=20540, type=int, help="Port for the visualization server (default: 20540)")
-def visualize(data_path: Path, port: int):
-    run_viser(data_path, port)
+def visualize(data_path: Path, host: str, port: int):
+    run_viser(data_path, port, host)
 
 
 @click.group()
